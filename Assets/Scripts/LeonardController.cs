@@ -8,15 +8,19 @@ public class LeonardController : MonoBehaviour
     private Animator anim;
     private bool accept_Input = true;
 
-    public AnimationClip fireballAnimClip;
-    public AnimationClip hurricaineKickAnimClip;
+    public AnimationClip jumpAnimClip;
+    public AnimationClip rumbaAnimClip;
 
     // Start is called before the first frame update
     void Start()
     {
         anim = this.GetComponent<Animator>();
 
-        HandleAnimationBlocking();
+        if (jumpAnimClip != null || rumbaAnimClip != null)
+        {
+            AddInputblockingAnimEndCallBack(jumpAnimClip);
+            AddInputblockingAnimEndCallBack(rumbaAnimClip); 
+        }
 
     }
 
@@ -25,9 +29,8 @@ public class LeonardController : MonoBehaviour
     {
         if (accept_Input) 
         { 
-            HandleInput(); 
+            HandleInput();
         }
-        
     }
 
     public void OnInputBlockingAnimationDone()
@@ -36,35 +39,34 @@ public class LeonardController : MonoBehaviour
     }
 
     // 
-    public void HandleAnimationBlocking()
+    public void AddInputblockingAnimEndCallBack(AnimationClip clip)
     {
-        if (fireballAnimClip != null)
-        {
-            AnimationEvent fireballDoneEvent = new AnimationEvent();
-            fireballDoneEvent.time = fireballAnimClip.length;
-            fireballDoneEvent.functionName = "OnInputBlockingAnimationDone";
-            fireballAnimClip.AddEvent(fireballDoneEvent);
-        }
-        if (hurricaineKickAnimClip != null)
-        {
-            AnimationEvent hurricKickDoneEvent = new AnimationEvent();
-            hurricKickDoneEvent.time = hurricaineKickAnimClip.length;
-            hurricKickDoneEvent.functionName = "OnInputBlockingAnimationDone";
-            fireballAnimClip.AddEvent(hurricKickDoneEvent);
-        }
+        AnimationEvent animDoneEvent = new AnimationEvent();
+        animDoneEvent.time = clip.length;
+        animDoneEvent.functionName = "OnInputBlockingAnimationDone";
+        clip.AddEvent(animDoneEvent);
     }
 
     private void HandleInput()
     {
+        // C is crouch
         anim.SetBool("Crouch", Input.GetKey(KeyCode.C));
-        if (Input.GetKey(KeyCode.G))
+
+        //im.SetBool("Jump", Input.GetKey(KeyCode.Space));
+
+        // R is rumba
+        if (Input.GetKey(KeyCode.R))
         {
-            anim.SetTrigger("HurricaneKick");
+            anim.SetBool("Crouch", false);
+            anim.SetTrigger("Rumba");
             accept_Input = false;
         }
-        if (Input.GetKey(KeyCode.F))
+
+        // Space is jump
+        if (Input.GetKey(KeyCode.Space))
         {
-            anim.SetTrigger("Fireball");
+            anim.SetBool("Crouch", false);
+            anim.SetBool("Jump", Input.GetKey(KeyCode.Space));
             accept_Input = false;
         }
     }
